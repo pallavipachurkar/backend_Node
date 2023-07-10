@@ -1,0 +1,176 @@
+
+
+
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+// Your code starts here. Placeholders for .get and .post are provided for
+//  your convenience.
+// let candidates = [
+//     {
+//       id: 'not-nobody',
+//       name: 'This is definitely somebody',
+//       skills: [ 'something-4647276e' ]
+//     }
+//   ];
+
+let candidates = [];
+app.post('/candidates', function (req, res) {
+
+    // Delete this to start and implement your solution
+    //   console.log("req.body")
+    //   console.log(req.body)
+    //  console.log("req.body.skills.lenght")
+    //   console.log(req.body.skills.length)
+    if (req.body.skills.length) {
+        candidates.push(req.body)
+    }
+    // console.log("swap")
+    // console.log(candidates)
+    // res.status(200).send("Success");
+    // res.socket.end();
+
+    //  console.log("POST candidates")
+    //   console.log(candidates)
+    if (candidates.length) {
+        res.status(200);
+        res.end(JSON.stringify(candidates[0]));
+    }
+    else {
+        res.status(404);
+        res.end(JSON.stringify({}));
+    }
+
+});
+
+app.get('/candidates/search', function (req, res) {
+    // Delete this to start and implement your solution
+    console.log("GET req.query.skills")
+    console.log(req.query.skills)
+
+    console.log("GET candidates")
+    console.log(candidates)
+    // typeof(req.query.skills)
+
+    if (!req.query.skills) {
+        //  console.log("sdfsd")
+        res.status(400);
+        res.send();
+    }
+
+    else if (!candidates.length) {
+        //  console.log("gjghjk")
+
+        res.status(404);
+        res.send();
+    }
+
+
+
+
+
+    else if (req.query.skills) {
+        let skills = req.query.skills.split(",");
+        //  let skills = "javascript,express,mongodb";
+
+        // console.log("swap skills")
+        // console.log(skills)
+        let maxSkills = 0;
+        // let candidates = [
+        //   {
+        //     id: '1',
+        //     name: 'This is definitely somebody',
+        //     skills: ['javascript', "express"]
+        //   },
+        //   {
+        //     id: '2',
+        //     name: 'This is definitely somebody',
+        //     skills: ['javascript', "express",'mongodb']
+        //   }
+        // ];
+
+        for (var i = 0; i < candidates.length; i++) {
+            candidates[i]['skillCount'] = 0;
+            // console.log("candidates[i]")
+            // console.log(candidates[i])
+            // for (var j = 0; j < candidates[i]['skills'].length; j++) {
+            // if (candidates[i]['id'].length == 1) {
+
+            //     console.log("single digit id")
+            //     // console.log(candidates)
+            //     res.status(404);
+            //     res.end();
+
+            // }
+
+            skills.forEach((skill) => {
+                // if (skill.length == 1) {
+
+                //     console.log("single digit skill")
+                //     // console.log(candidates)
+                //     res.status(404);
+                //     res.end();
+
+                // }
+                // console.log("skill")
+                // console.log(skill)
+                if (candidates[i]['skills'].includes(skill)) {
+                    // console.log("includes")
+                    // console.log("b4 ++")
+                    // console.log( candidates[i])
+                    candidates[i]['skillCount']++;
+                    // console.log("after ++")
+                    // console.log( candidates[i])
+                }
+            })
+
+            // }
+        }
+
+        // console.log("candidates")
+        // console.log(candidates)
+
+        candidates.sort(sortFunction);
+
+        function sortFunction(a, b) {
+            if (a['skillCount'] === b['skillCount']) {
+                return 0;
+            }
+            else {
+                return (a['skillCount'] > b['skillCount']) ? -1 : 1;
+            }
+        }
+    }
+    else {
+        res.status(404);
+        res.send();
+    }
+    //  console.log("skills")
+    //  console.log(skills)
+    //   console.log("candidates")
+    //   console.log(candidates)
+    // res.setHeader('Content-Type', 'application/json');
+    if (candidates.length > 0 && candidates[0]['skillCount'] > 0) {
+        // console.log("1")
+        // console.log(candidates)
+        res.status(200);
+        res.end(JSON.stringify(candidates[0]));
+    }
+    else if (candidates.length > 0 && candidates[0]['skillCount'] == 0) {
+        res.status(404);
+        res.end();
+    }
+    else {
+        // console.log("2")
+        // console.log(candidates)
+        res.status(404);
+        res.end();
+    }
+    // res.send(candidates[0]);
+    // res.socket.end();
+});
+
+app.listen(process.env.HTTP_PORT || 3000);
+
+// app.listen(8083);
