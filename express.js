@@ -1,3 +1,7 @@
+
+
+
+
 //  npm install express --save
 //  npm install mysql
 //  npm i body-parser
@@ -28,6 +32,10 @@ var con = mysql.createConnection({
     password: "",
     database: "test"
 });
+// const userRoute = require('./routes/User')
+// const contactRoute = require('./routes/Contact')
+// app.use("/user", userRoute)
+// app.use("/contact", contactRoute)
 
 app.use(function (req, res, next) {
 
@@ -516,9 +524,9 @@ app.post("/delete_category", (req, res) => {
 app.post('/signup_user', async function (req, res) {
 
     let query = `INSERT INTO users 
-    (first_name, last_name, email, password, address,mobile_number,pincode) VALUES (?, ?, ?,?,?,?,?);`;
+    (first_name, last_name, email, password,confirm_password ,address,mobile_number,pincode) VALUES (?,?, ?, ?,?,?,?,?);`;
 
-    const value = [req.body.first_name, req.body.last_name, req.body.email, req.body.password, req.body.address, req.body.mobile_number, req.body.pincode];
+    const value = [req.body.first_name, req.body.last_name, req.body.email, req.body.password, req.body.confirm_password, req.body.address, req.body.mobile_number, req.body.pincode];
 
     con.query(query, value, (err, rows, fields) => {
         if (err) {
@@ -558,6 +566,71 @@ app.post('/get_product', async function (req, res) {
     });
 }
 );
+
+businessuser = (req) => {
+    console.log('mmmmmmmmmmm');
+
+    let query = `INSERT INTO business_details 
+    (business_name, address, city, pin,business_phone, gst_number, business_description,business_type,business_logo) VALUES ( ?, ?,?,?,?,?,?,?,?);`;
+    const value = [req.body.business_name, req.body.address, req.body.city, req.body.pin, req.body.business_phone, req.body.gst_number, req.body.business_description, req.body.business_type, req.body.business_logo];
+    console.log(req.body.business_name);
+    console.log(req.body.address);
+
+    let id = con.query(query, value, (err, rows, fields) => {
+        if (err) {
+            throw err;
+        }
+        console.log("Row inserted with id = "
+            + rows.insertId);
+        return rows.insertId
+        
+    })
+    console.log(id);
+    console.log('iddddddd');
+
+    return id;
+
+},
+
+    //business_signup_user
+    app.post('/business_signup_user', async function (req, res) {
+
+        let id = this.businessuser(req)
+        console.log(id);
+
+        let query = `INSERT INTO business_users 
+    (first_name, last_name, email, password,phone_no,business_id) VALUES ( ?, ?,?,?,?,LAST_INSERT_ID());`;
+
+        const value = [req.body.first_name, req.body.last_name, req.body.email, req.body.password, req.body.phone_no];
+
+        con.query(query, value, (err, rows, fields) => {
+            if (err) {
+                throw err;
+            }
+            console.log("Row inserted with id = "
+                + rows.insertId);
+            // let query = `INSERT INTO business_users 
+            // (first_name, last_name, email, password,phone_no) VALUES ( ?, ?,?,?,?);`;
+
+            // const value = [req.body.first_name, req.body.last_name, req.body.email, req.body.password, req.body.phone_no];
+
+            if (rows.affectedRows > 0) {
+                res.send({
+                    'success': true,
+                });
+            }
+            else {
+                res.send({
+                    'success': false
+                })
+            }
+
+            // res.send(rows);
+
+        });
+
+
+    });
 
 // start the server
 app.listen(port);
